@@ -39,29 +39,41 @@ echo "SSH permitido somente para: ${SSH_CIDR}"
 echo
 echo "[3/7] Criando backend remoto..."
 
-if aws s3api head-bucket --bucket "${BUCKET_NAME}" 2>/dev/null; then
+if aws s3api head-bucket \
+  --bucket "${BUCKET_NAME}" \
+  >/dev/null 2>&1
+then
   echo "Bucket S3 já existe: ${BUCKET_NAME}"
 else
-  echo "Criando bucket S3..."
+  echo "Criando bucket S3: ${BUCKET_NAME}"
 
   aws s3api create-bucket \
     --bucket "${BUCKET_NAME}" \
     --region us-east-1
 
+  echo "Ativando versionamento..."
+
   aws s3api put-bucket-versioning \
     --bucket "${BUCKET_NAME}" \
     --versioning-configuration Status=Enabled
+
+  echo "Ativando criptografia AES256..."
 
   aws s3api put-bucket-encryption \
     --bucket "${BUCKET_NAME}" \
     --server-side-encryption-configuration \
     '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
 
+  echo "Bloqueando acesso público..."
+
   aws s3api put-public-access-block \
     --bucket "${BUCKET_NAME}" \
     --public-access-block-configuration \
     'BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true'
 fi
+
+echo
+echo "Configurando DynamoDB para locking..."
 
 cd "${ROOT_DIR}/infra/backend"
 
