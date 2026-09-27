@@ -1,3 +1,4 @@
+* ea012e8 docs(evidencias): atualiza historico Git final
 * be60947 docs: completa respostas do relatorio da prova
 * 84e2d4f fix(deploy): reforca configuracao do backend AWS
 * 3ec270c fix(deploy): corrige script de destruicao e dockerignore
