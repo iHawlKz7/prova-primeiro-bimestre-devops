@@ -54,6 +54,7 @@ resource "aws_instance" "api" {
       -e DB_NAME=${var.db_name} \
       -e DB_USER=${var.db_username} \
       -e DB_PASSWORD='${var.db_password}' \
+      -e DB_SSL=true \
       reservas-api
   EOF
 
