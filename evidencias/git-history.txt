@@ -1,3 +1,10 @@
+* be60947 docs: completa respostas do relatorio da prova
+* 84e2d4f fix(deploy): reforca configuracao do backend AWS
+* 3ec270c fix(deploy): corrige script de destruicao e dockerignore
+* 557f3ef docs(evidencias): registra validacao final da API AWS
+* 0ab1df9 docs: finaliza relatorio do processo
+* 071595c docs: corrige README completo do projeto
+* fd9e1ce docs(evidencias): adiciona validacoes local e AWS
 * 5ec595b fix(api): habilita SSL na conexao com RDS
 * 578522b fix(terraform): corrige modulos e configuracao do backend remoto
 * 92d8a1d fix(deploy): cria bucket S3 via AWS CLI no Learner Lab
