@@ -22,6 +22,12 @@ A Aula 06 apareceu principalmente na modularização. Foram criados módulos sep
 
 Por fim, a Aula 07 foi aplicada no processo de desenvolvimento. A solução não foi construída de uma só vez. O trabalho foi dividido em pequenas etapas: aplicação, Docker, Compose, backend remoto, módulos, infraestrutura, testes e documentação. Cada parte foi validada antes de seguir para a próxima, utilizando a IA como apoio, mas verificando seus resultados por meio de comandos reais.
 
+Durante todo o processo, as alterações também foram registradas em commits pequenos utilizando o padrão Conventional Commits, permitindo acompanhar a evolução do projeto e as correções realizadas.
+
+As evidências de build, execução do Docker Compose, Terraform Plan, outputs e testes da API foram armazenadas na pasta evidencias para permitir a conferência posterior do processo.
+
+Ao final, a infraestrutura foi preparada para ser destruída com Terraform depois da coleta das evidências, evitando deixar recursos ativos consumindo os créditos do AWS Academy.
+
 ---
 
 # Questão 2 — O Processo com IA como Copiloto
@@ -39,6 +45,12 @@ Outro problema aconteceu quando a aplicação foi executada na EC2. O Docker fun
 Esses casos demonstraram uma diferença importante entre utilizar IA como geradora de código e utilizar IA como copiloto. O código sugerido precisou ser executado, observado e validado. Quando o comportamento real divergiu da sugestão, os logs e os comandos de diagnóstico foram utilizados para determinar o problema.
 
 Comparado com fazer tudo manualmente, a IA reduziu bastante o tempo de escrita inicial e de consulta de sintaxe. Porém, quando uma sugestão não considerava uma limitação específica do Learner Lab, ela também aumentava o trabalho necessário para investigar e corrigir. Por isso, o maior benefício ocorreu quando a IA foi utilizada para acelerar tarefas pequenas enquanto cada resultado era validado antes de continuar.
+
+Outro ponto importante foi utilizar a IA para interpretar mensagens reais do terminal em vez de simplesmente pedir uma nova solução sempre que algo falhava.
+
+Os erros encontrados foram fornecidos como contexto para a IA, permitindo comparar a sugestão anterior com o comportamento real do ambiente e aplicar uma correção mais específica.
+
+Esse processo deixou claro que a produtividade aumentou quando os prompts eram pequenos, objetivos e acompanhados pelos resultados reais dos comandos executados.
 
 ---
 
@@ -60,6 +72,10 @@ Também foi encontrada uma restrição específica relacionada ao S3. A Service 
 
 Essa experiência mostrou que uma configuração válida em uma conta AWS comum pode precisar de adaptações dentro do Learner Lab, tornando a leitura das mensagens de erro e a validação prática essenciais.
 
+O Terraform State da infraestrutura principal foi armazenado remotamente no S3, enquanto uma tabela DynamoDB foi utilizada para controlar o locking e reduzir o risco de alterações concorrentes no estado.
+
+Antes da finalização, também foram verificados diretamente no bucket o versionamento, a criptografia AES256, o bloqueio de acesso público e as tags utilizadas para identificar o recurso.
+
 ---
 
 # Questão 4 — Validação e Responsabilidade
@@ -79,3 +95,7 @@ Se o código gerado pela IA tivesse sido aceito sem revisão, a infraestrutura p
 A evolução Git → Docker → Docker Compose → Terraform → Modules ajudou a desenvolver um processo de validação em camadas. Git permitiu registrar mudanças e correções; Docker tornou o ambiente reproduzível; Compose permitiu validar a integração local; Terraform permitiu revisar a infraestrutura antes da criação; e os módulos reduziram dependências implícitas, tornando os relacionamentos entre recursos mais visíveis.
 
 Por isso, a IA foi utilizada como ferramenta de apoio e não como fonte final de verdade. Cada sugestão relevante foi confirmada através de comandos, logs, testes HTTP, Terraform Plan e observação direta dos recursos AWS antes de considerar a etapa concluída.
+
+Também foi testado o comportamento esperado após a exclusão de uma reserva, realizando uma nova busca pelo mesmo ID e confirmando o retorno HTTP 404 da API.
+
+Além dos testes funcionais, o histórico Git e os arquivos de evidência foram revisados antes da destruição da infraestrutura para garantir que os resultados importantes permanecessem documentados.
