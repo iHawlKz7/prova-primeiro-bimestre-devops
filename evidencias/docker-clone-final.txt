@@ -1,0 +1,221 @@
+Teste realizado a partir de clone novo
+Commit:
+d7e70926cff9e1e5a42e91b099d1f7a08c346bdd
+
+===== DOCKER COMPOSE CONFIG =====
+docker compose config: OK
+
+===== BUILD E START =====
+ Image prova-validacao-clone-api Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 556B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 379B done
+#2 DONE 0.0s
+
+#3 [auth] library/node:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#4 [internal] load metadata for docker.io/library/node:22-alpine
+#4 DONE 0.7s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 109B 0.0s done
+#5 DONE 0.0s
+
+#6 [dependencies 1/4] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 42.29kB 0.0s done
+#7 DONE 0.0s
+
+#8 [runtime 3/5] COPY --from=dependencies /app/node_modules ./node_modules
+#8 CACHED
+
+#9 [dependencies 4/4] RUN npm ci --omit=dev
+#9 CACHED
+
+#10 [dependencies 2/4] WORKDIR /app
+#10 CACHED
+
+#11 [runtime 4/5] COPY package*.json ./
+#11 CACHED
+
+#12 [dependencies 3/4] COPY package*.json ./
+#12 CACHED
+
+#13 [runtime 5/5] COPY src ./src
+#13 CACHED
+
+#14 exporting to image
+#14 exporting layers done
+#14 writing image sha256:5a8700a705c031ac2d435a18ecd6beae13fb37bbbab8fff830eab78fc8fa042e done
+#14 naming to docker.io/library/prova-validacao-clone-api done
+#14 DONE 0.0s
+
+#15 resolving provenance for metadata file
+#15 DONE 0.0s
+ Image prova-validacao-clone-api Built 
+ Network prova-validacao-clone_reservas-network Creating 
+ Network prova-validacao-clone_reservas-network Created 
+ Volume prova-validacao-clone_postgres_data Creating 
+ Volume prova-validacao-clone_postgres_data Created 
+ Container reservas-db Creating 
+ Container reservas-db Created 
+ Container reservas-api Creating 
+ Container reservas-api Created 
+ Container reservas-db Starting 
+ Container reservas-db Started 
+ Container reservas-db Waiting 
+ Container reservas-db Healthy 
+ Container reservas-api Starting 
+ Container reservas-api Started 
+
+===== AGUARDANDO HEALTHCHECK =====
+Tentativa 1/30: starting
+Tentativa 2/30: starting
+Tentativa 3/30: healthy
+
+===== CONTAINERS =====
+NAME           IMAGE                       COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+reservas-api   prova-validacao-clone-api   "docker-entrypoint.s…"   api       12 seconds ago   Up 6 seconds (healthy)    0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+reservas-db    postgres:16-alpine          "docker-entrypoint.s…"   db        12 seconds ago   Up 11 seconds (healthy)   5432/tcp
+
+===== HEALTH =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    38  100    38    0     0  18366      0 --:--:-- --:--:-- --:--:-- 38000
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 38
+ETag: W/"26-G5LxOYyjFUYa+WPP6EvZ1P788Mo"
+Date: Tue, 29 Sep 2026 00:02:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"status":"ok","database":"connected"}
+
+===== CREATE =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   163  100    92  100    71   8522   6577 --:--:-- --:--:-- --:--:-- 16300
+HTTP/1.1 201 Created
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 92
+ETag: W/"5c-R/pKgK+cTGn+clF8gA9h5FELefI"
+Date: Tue, 29 Sep 2026 00:02:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Teste Clone Final","data":"2026-10-01T00:00:00.000Z","status":"pendente"}
+
+===== LIST =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    94  100    94    0     0  41391      0 --:--:-- --:--:-- --:--:-- 47000
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 94
+ETag: W/"5e-xeBpbItjxWJqP3Io/XX2tIZ3zMk"
+Date: Tue, 29 Sep 2026 00:02:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+[{"id":1,"cliente":"Teste Clone Final","data":"2026-10-01T00:00:00.000Z","status":"pendente"}]
+
+===== GET POR ID =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    92  100    92    0     0  51627      0 --:--:-- --:--:-- --:--:-- 92000
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 92
+ETag: W/"5c-R/pKgK+cTGn+clF8gA9h5FELefI"
+Date: Tue, 29 Sep 2026 00:02:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Teste Clone Final","data":"2026-10-01T00:00:00.000Z","status":"pendente"}
+
+===== UPDATE =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   177  100    99  100    78  25943  20440 --:--:-- --:--:-- --:--:-- 59000
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 99
+ETag: W/"63-ot8awH87NH0RY3rTxeN4HlrOl2s"
+Date: Tue, 29 Sep 2026 00:02:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Teste Clone Atualizado","data":"2026-10-02T00:00:00.000Z","status":"confirmada"}
+
+===== GET APOS UPDATE =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    99  100    99    0     0  85051      0 --:--:-- --:--:-- --:--:-- 99000
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 99
+ETag: W/"63-ot8awH87NH0RY3rTxeN4HlrOl2s"
+Date: Tue, 29 Sep 2026 00:02:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Teste Clone Atualizado","data":"2026-10-02T00:00:00.000Z","status":"confirmada"}
+
+===== RESTART SOMENTE DA API =====
+ Container reservas-api Restarting 
+ Container reservas-api Started 
+Tentativa 1/30: starting
+Tentativa 2/30: starting
+Tentativa 3/30: healthy
+
+===== PERSISTENCIA APOS RESTART =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    99  100    99    0     0  29702      0 --:--:-- --:--:-- --:--:-- 33000
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 99
+ETag: W/"63-ot8awH87NH0RY3rTxeN4HlrOl2s"
+Date: Tue, 29 Sep 2026 00:02:46 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Teste Clone Atualizado","data":"2026-10-02T00:00:00.000Z","status":"confirmada"}
+
+===== DELETE =====
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+HTTP/1.1 204 No Content
+X-Powered-By: Express
+Date: Tue, 29 Sep 2026 00:02:46 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+
+===== GET APOS DELETE =====
+{"erro":"Reserva não encontrada"}
+HTTP 404
+
+===== ESTADO FINAL =====
+NAME           IMAGE                       COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+reservas-api   prova-validacao-clone-api   "docker-entrypoint.s…"   api       28 seconds ago   Up 6 seconds (healthy)    0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+reservas-db    postgres:16-alpine          "docker-entrypoint.s…"   db        28 seconds ago   Up 28 seconds (healthy)   5432/tcp
+
+===== RESULTADO =====
+CLONE NOVO + DOCKER + CRUD + PERSISTENCIA: OK
