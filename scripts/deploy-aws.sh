@@ -15,10 +15,10 @@ if [[ -z "${DB_PASSWORD:-}" ]]; then
   exit 1
 fi
 
-REPOSITORY_URL="https:""//github.com/""iHawlKz7/""prova-primeiro-bimestre-devops.git"
+REPOSITORY_URL="https://github.com/iHawlKz7/prova-primeiro-bimestre-devops.git"
 
 echo
-echo "[1/7] Validando credenciais AWS..."
+echo "[1/8] Validando credenciais AWS..."
 
 aws sts get-caller-identity >/dev/null
 
@@ -32,12 +32,12 @@ echo "Bucket: ${BUCKET_NAME}"
 echo "DynamoDB: ${LOCK_TABLE}"
 
 echo
-echo "[2/7] Identificando IP publico..."
+echo "[2/8] Identificando IP publico..."
 
-PUBLIC_IP=$(curl -s https://checkip.amazonaws.com | tr -d '\n')
+PUBLIC_IP=$(curl -fsS https://checkip.amazonaws.com | tr -d '\n')
 
 if [[ -z "${PUBLIC_IP}" ]]; then
-  echo "Nao foi possivel identificar o IP publico."
+  echo "ERRO: nao foi possivel identificar o IP publico."
   exit 1
 fi
 
@@ -46,7 +46,7 @@ SSH_CIDR="${PUBLIC_IP}/32"
 echo "SSH permitido somente para: ${SSH_CIDR}"
 
 echo
-echo "[3/7] Preparando backend remoto..."
+echo "[3/8] Preparando backend remoto..."
 
 if aws s3api head-bucket \
   --bucket "${BUCKET_NAME}" \
@@ -85,7 +85,8 @@ echo "Garantindo tags do bucket..."
 
 aws s3api put-bucket-tagging \
   --bucket "${BUCKET_NAME}" \
-  --tagging 'TagSet=[{Key=Name,Value=terraform-state},{Key=Project,Value=prova-devops},{Key=Student,Value=Emar-Cristian},{Key=RA,Value=6325192}]'
+  --tagging \
+  'TagSet=[{Key=Name,Value=terraform-state},{Key=Project,Value=prova-devops},{Key=Student,Value=Emar-Cristian},{Key=RA,Value=6325192}]'
 
 echo
 echo "Configurando DynamoDB para locking..."
@@ -101,7 +102,7 @@ terraform apply \
   -var="dynamodb_table_name=${LOCK_TABLE}"
 
 echo
-echo "[4/7] Inicializando infraestrutura principal..."
+echo "[4/8] Inicializando infraestrutura principal..."
 
 cd "${ROOT_DIR}/infra"
 
@@ -115,13 +116,13 @@ terraform init \
   -backend-config="encrypt=true"
 
 echo
-echo "[5/7] Validando Terraform..."
+echo "[5/8] Validando Terraform..."
 
 terraform fmt -recursive
 terraform validate
 
 echo
-echo "[6/7] Gerando plano..."
+echo "[6/8] Gerando plano..."
 
 terraform plan \
   -input=false \
@@ -132,7 +133,7 @@ terraform plan \
   | tee "${ROOT_DIR}/evidencias/terraform-plan.txt"
 
 echo
-echo "[7/7] Aplicando infraestrutura..."
+echo "[7/8] Aplicando infraestrutura..."
 
 terraform apply \
   -auto-approve \
@@ -141,9 +142,41 @@ terraform apply \
   -var="ssh_cidr=${SSH_CIDR}" \
   -var="repository_url=${REPOSITORY_URL}"
 
-echo
-echo "========================================"
-echo " Deploy concluido"
-echo "========================================"
+API_URL=$(terraform output -raw api_url)
 
-terraform output
+echo
+echo "[8/8] Aguardando API ficar saudavel..."
+echo "Endpoint: ${API_URL}/health"
+
+MAX_ATTEMPTS=60
+SLEEP_SECONDS=10
+
+for ((attempt=1; attempt<=MAX_ATTEMPTS; attempt++)); do
+  echo "Tentativa ${attempt}/${MAX_ATTEMPTS}..."
+
+  if RESPONSE=$(curl \
+    --fail \
+    --silent \
+    --show-error \
+    --max-time 5 \
+    "${API_URL}/health" 2>/dev/null)
+  then
+    echo
+    echo "API saudavel:"
+    echo "${RESPONSE}"
+    echo
+    echo "========================================"
+    echo " Deploy concluido com sucesso"
+    echo "========================================"
+    echo
+    terraform output
+    exit 0
+  fi
+
+  sleep "${SLEEP_SECONDS}"
+done
+
+echo
+echo "ERRO: a API nao ficou saudavel dentro do tempo limite."
+echo "Verifique a EC2, os containers e os logs da aplicacao."
+exit 1

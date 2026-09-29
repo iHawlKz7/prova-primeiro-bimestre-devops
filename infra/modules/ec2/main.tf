@@ -44,6 +44,9 @@ resource "aws_instance" "api" {
 
     docker build -t reservas-api ./app
 
+    DB_PASSWORD_B64='${base64encode(var.db_password)}'
+    DB_PASSWORD_DECODED="$(printf '%s' "$DB_PASSWORD_B64" | base64 --decode)"
+
     docker run -d \
       --name reservas-api \
       --restart unless-stopped \
@@ -53,9 +56,12 @@ resource "aws_instance" "api" {
       -e DB_PORT=5432 \
       -e DB_NAME=${var.db_name} \
       -e DB_USER=${var.db_username} \
-      -e DB_PASSWORD='${var.db_password}' \
+      -e DB_PASSWORD="$DB_PASSWORD_DECODED" \
       -e DB_SSL=true \
       reservas-api
+
+    unset DB_PASSWORD_B64
+    unset DB_PASSWORD_DECODED
   EOF
 
   tags = {
