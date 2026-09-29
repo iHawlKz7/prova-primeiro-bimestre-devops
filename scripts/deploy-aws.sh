@@ -10,8 +10,22 @@ echo "========================================"
 
 if [[ -z "${DB_PASSWORD:-}" ]]; then
   echo "ERRO: a variavel DB_PASSWORD nao esta definida."
-  echo "Defina antes de executar:"
-  echo "export DB_PASSWORD='SUA_SENHA'"
+  echo "Defina a senha antes de executar o deploy."
+  exit 1
+fi
+
+if (( ${#DB_PASSWORD} < 8 || ${#DB_PASSWORD} > 128 )); then
+  echo "ERRO: DB_PASSWORD deve possuir entre 8 e 128 caracteres."
+  exit 1
+fi
+
+if printf '%s' "${DB_PASSWORD}" | LC_ALL=C grep -q '[^ -~]'; then
+  echo "ERRO: DB_PASSWORD deve conter apenas caracteres ASCII imprimiveis."
+  exit 1
+fi
+
+if printf '%s' "${DB_PASSWORD}" | LC_ALL=C grep -qE "[/@\"'[:space:]]"; then
+  echo "ERRO: DB_PASSWORD nao pode conter /, @, aspas simples, aspas duplas ou espacos."
   exit 1
 fi
 
@@ -22,7 +36,7 @@ echo "[1/8] Validando credenciais AWS..."
 
 aws sts get-caller-identity >/dev/null
 
-ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 
 BUCKET_NAME="technova-devops-state-${ACCOUNT_ID}-6325192"
 LOCK_TABLE="technova-devops-locks-6325192"
@@ -34,7 +48,7 @@ echo "DynamoDB: ${LOCK_TABLE}"
 echo
 echo "[2/8] Identificando IP publico..."
 
-PUBLIC_IP=$(curl -fsS https://checkip.amazonaws.com | tr -d '\n')
+PUBLIC_IP="$(curl -fsS https://checkip.amazonaws.com | tr -d '\n')"
 
 if [[ -z "${PUBLIC_IP}" ]]; then
   echo "ERRO: nao foi possivel identificar o IP publico."
@@ -142,7 +156,7 @@ terraform apply \
   -var="ssh_cidr=${SSH_CIDR}" \
   -var="repository_url=${REPOSITORY_URL}"
 
-API_URL=$(terraform output -raw api_url)
+API_URL="$(terraform output -raw api_url)"
 
 echo
 echo "[8/8] Aguardando API ficar saudavel..."
@@ -154,22 +168,27 @@ SLEEP_SECONDS=10
 for ((attempt=1; attempt<=MAX_ATTEMPTS; attempt++)); do
   echo "Tentativa ${attempt}/${MAX_ATTEMPTS}..."
 
-  if RESPONSE=$(curl \
-    --fail \
-    --silent \
-    --show-error \
-    --max-time 5 \
-    "${API_URL}/health" 2>/dev/null)
+  if RESPONSE="$(
+    curl \
+      --fail \
+      --silent \
+      --show-error \
+      --max-time 5 \
+      "${API_URL}/health" 2>/dev/null
+  )"
   then
     echo
     echo "API saudavel:"
     echo "${RESPONSE}"
+
     echo
     echo "========================================"
     echo " Deploy concluido com sucesso"
     echo "========================================"
+
     echo
     terraform output
+
     exit 0
   fi
 
