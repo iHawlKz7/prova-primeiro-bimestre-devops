@@ -10,7 +10,7 @@
 
 A construção da API de Reservas foi realizada seguindo a evolução dos conteúdos apresentados durante o primeiro bimestre. O primeiro passo foi utilizar os conceitos da Aula 01 para criar o repositório Git, configurar a estrutura inicial e manter um histórico utilizando Conventional Commits. Também foi criada uma feature branch para desenvolver a solução antes de realizar o merge com a branch principal. Ainda com conteúdos da Aula 01, a API Node.js/Express foi containerizada utilizando Dockerfile multi-stage e execução com usuário não-root.
 
-Na Aula 02, os conceitos de Docker Compose foram aplicados para criar um ambiente local contendo dois serviços: a API e o PostgreSQL. Foi criado um volume nomeado para persistência, uma rede bridge própria, healthcheck no banco e dependência da API em relação ao banco saudável. Dessa forma, todo o ambiente local passou a subir com um único comando utilizando docker compose up -d --build.
+Na Aula 02, os conceitos de Docker Compose foram aplicados para criar um ambiente local contendo dois serviços: a API e o PostgreSQL. Foi criado um volume nomeado para persistência, uma rede bridge própria, healthcheck no banco, healthcheck na API e dependência da API em relação ao banco saudável. Dessa forma, todo o ambiente local passou a subir com um único comando utilizando `docker compose up -d --build`.
 
 Os conceitos de Terraform vistos a partir da Aula 03 foram utilizados para transformar a infraestrutura AWS em código. Em vez de criar manualmente os recursos pelo console, VPC, subnets, Security Groups, EC2 e RDS foram declarados utilizando arquivos Terraform. Também foram utilizadas variáveis, outputs e providers.
 
@@ -24,9 +24,13 @@ Por fim, a Aula 07 foi aplicada no processo de desenvolvimento. A solução não
 
 Durante todo o processo, as alterações também foram registradas em commits pequenos utilizando o padrão Conventional Commits, permitindo acompanhar a evolução do projeto e as correções realizadas.
 
-As evidências de build, execução do Docker Compose, Terraform Plan, outputs e testes da API foram armazenadas na pasta evidencias para permitir a conferência posterior do processo.
+As evidências de build, execução do Docker Compose, Terraform Plan, outputs e testes da API foram armazenadas na pasta `evidencias` para permitir a conferência posterior do processo.
 
-Ao final, a infraestrutura foi preparada para ser destruída com Terraform depois da coleta das evidências, evitando deixar recursos ativos consumindo os créditos do AWS Academy.
+A versão final também foi testada a partir de um clone novo do repositório. Nesse teste foram confirmados o build, os healthchecks, o CRUD completo e a persistência dos dados após reiniciar somente a API.
+
+Na AWS, o deploy final criou toda a infraestrutura e o script permaneceu aguardando até que o endpoint `/health` respondesse com sucesso e confirmasse a conexão com o banco.
+
+Depois das evidências, a infraestrutura principal, o DynamoDB e todas as versões do bucket S3 foram removidos. A verificação final confirmou que EC2, RDS, VPC, DynamoDB e S3 não permaneceram ativos consumindo os créditos do Learner Lab.
 
 ---
 
@@ -34,17 +38,25 @@ Ao final, a infraestrutura foi preparada para ser destruída com Terraform depoi
 
 A ferramenta de IA utilizada como copiloto durante o desenvolvimento foi o ChatGPT. O trabalho foi conduzido de forma incremental, utilizando prompts voltados para tarefas pequenas em vez de solicitar toda a prova em um único comando. Entre os principais pedidos realizados estavam a criação da estrutura da API Node.js/Express, configuração do Dockerfile, Docker Compose, módulos Terraform, scripts de deploy e análise dos erros encontrados durante as validações.
 
-Um dos prompts utilizados foi equivalente a: "Crie a estrutura da API Node.js/Express com CRUD completo de reservas e persistência PostgreSQL". Outro prompt pediu a criação de um Dockerfile multi-stage com usuário não-root e outro solicitou um Docker Compose contendo API, PostgreSQL, volume, rede, healthcheck e depends_on. Na infraestrutura, foram solicitados módulos Terraform separados para VPC, Security Groups, EC2 e RDS, considerando explicitamente o ambiente AWS Academy Learner Lab.
+Um dos prompts utilizados foi equivalente a: "Crie a estrutura da API Node.js/Express com CRUD completo de reservas e persistência PostgreSQL". Outro prompt pediu a criação de um Dockerfile multi-stage com usuário não-root e outro solicitou um Docker Compose contendo API, PostgreSQL, volume, rede, healthcheck e `depends_on`. Na infraestrutura, foram solicitados módulos Terraform separados para VPC, Security Groups, EC2 e RDS, considerando explicitamente o ambiente AWS Academy Learner Lab.
 
 A IA economizou bastante tempo na criação das estruturas iniciais dos arquivos e na organização da sequência de implementação. Ela também ajudou na investigação de erros porque foi possível fornecer diretamente os outputs do terminal e analisar o que estava acontecendo em cada etapa.
 
-Ao mesmo tempo, nem todas as sugestões funcionaram na primeira tentativa. Um dos problemas ocorreu na criação do bucket S3 com Terraform. O AWS Academy possui uma Service Control Policy que bloqueou a operação s3:GetBucketObjectLockConfiguration. A primeira solução não havia considerado essa restrição específica do ambiente. Foi necessário analisar o erro e adaptar o processo para que o bucket fosse criado e configurado pela AWS CLI enquanto o restante continuava sendo gerenciado normalmente.
+Ao mesmo tempo, nem todas as sugestões funcionaram na primeira tentativa. Um dos problemas ocorreu na criação do bucket S3 com Terraform. O AWS Academy possui uma Service Control Policy que bloqueou a operação `s3:GetBucketObjectLockConfiguration`. A primeira solução não havia considerado essa restrição específica do ambiente. Foi necessário analisar o erro e adaptar o processo para que o bucket fosse criado e configurado pela AWS CLI enquanto o restante continuava sendo gerenciado normalmente.
 
-Outro problema aconteceu quando a aplicação foi executada na EC2. O Docker funcionava e o container era criado, mas permanecia reiniciando. A análise dos logs mostrou a mensagem "no pg_hba.conf entry ... no encryption". A aplicação funcionava corretamente com o PostgreSQL local, mas o RDS exigia conexão criptografada. Foi necessário corrigir a configuração do pg para utilizar SSL na AWS, mantendo o ambiente Docker local sem SSL.
+Outro problema aconteceu quando a aplicação foi executada na EC2. O Docker funcionava e o container era criado, mas permanecia reiniciando. A análise dos logs mostrou a mensagem relacionada a `no pg_hba.conf entry` e ausência de criptografia. A aplicação funcionava corretamente com o PostgreSQL local, mas o RDS exigia conexão criptografada. Foi necessário corrigir a configuração do `pg` para utilizar SSL na AWS, mantendo o ambiente Docker local sem SSL.
+
+Durante a revisão final também foi encontrada uma falha de validação no próprio script de deploy. Uma senha curta chegou até a criação do RDS e a AWS rejeitou a operação porque a senha possuía menos de oito caracteres. Isso deixou parte da infraestrutura já criada.
+
+Esse caso foi utilizado para melhorar o processo. A infraestrutura parcial foi destruída, o S3 e o DynamoDB também foram removidos e o script passou a validar o tamanho e os caracteres da senha antes de executar qualquer operação na AWS.
+
+Outro problema identificado na revisão foi que o script de deploy declarava sucesso logo após o `terraform apply`, sem confirmar se a aplicação realmente estava disponível. O script foi alterado para aguardar o endpoint `/health` e somente encerrar com sucesso depois que a API responde e confirma a conexão com o PostgreSQL.
+
+Também foi detectado que os scripts estavam versionados sem permissão de execução, embora o README orientasse executá-los diretamente com `./scripts/...`. As permissões foram corrigidas para modo executável e posteriormente confirmadas em um clone novo do GitHub.
 
 Esses casos demonstraram uma diferença importante entre utilizar IA como geradora de código e utilizar IA como copiloto. O código sugerido precisou ser executado, observado e validado. Quando o comportamento real divergiu da sugestão, os logs e os comandos de diagnóstico foram utilizados para determinar o problema.
 
-Comparado com fazer tudo manualmente, a IA reduziu bastante o tempo de escrita inicial e de consulta de sintaxe. Porém, quando uma sugestão não considerava uma limitação específica do Learner Lab, ela também aumentava o trabalho necessário para investigar e corrigir. Por isso, o maior benefício ocorreu quando a IA foi utilizada para acelerar tarefas pequenas enquanto cada resultado era validado antes de continuar.
+Comparado com fazer tudo manualmente, a IA reduziu bastante o tempo de escrita inicial e de consulta de sintaxe. Porém, quando uma sugestão não considerava uma limitação específica do Learner Lab, ela também aumentava o trabalho necessário para investigar e corrigir.
 
 Outro ponto importante foi utilizar a IA para interpretar mensagens reais do terminal em vez de simplesmente pedir uma nova solução sempre que algo falhava.
 
@@ -60,42 +72,60 @@ A arquitetura AWS criada para a prova possui uma VPC própria com quatro subnets
 
 A EC2 precisa estar em uma subnet pública porque é o ponto de entrada da aplicação. Ela possui endereço IP público e sua porta 3000 é utilizada para acessar a API. A subnet pública possui rota para um Internet Gateway, permitindo que usuários externos façam requisições para a API.
 
-O RDS não precisa receber conexões diretamente da Internet e, por isso, foi colocado nas subnets privadas. O atributo publicly_accessible foi configurado como false. Além disso, o Security Group do RDS permite conexões na porta 5432 somente quando a origem é o Security Group utilizado pela EC2. Assim, mesmo dentro da VPC, o banco não fica disponível de forma indiscriminada.
+O RDS não precisa receber conexões diretamente da Internet e, por isso, foi colocado nas subnets privadas. O atributo `publicly_accessible` foi configurado como `false`. Além disso, o Security Group do RDS permite conexões na porta 5432 somente quando a origem é o Security Group utilizado pela EC2. Assim, mesmo dentro da VPC, o banco não fica disponível de forma indiscriminada.
 
-O RDS também foi configurado com storage_encrypted = true. Durante os testes foi identificado que a conexão da aplicação com o PostgreSQL precisava utilizar SSL. A API foi então configurada para ativar SSL no ambiente AWS através da variável DB_SSL, mantendo o funcionamento local compatível com o PostgreSQL do Docker Compose.
+O RDS também foi configurado com `storage_encrypted = true`. Durante os testes foi identificado que a conexão da aplicação com o PostgreSQL precisava utilizar SSL. A API foi então configurada para ativar SSL no ambiente AWS através da variável `DB_SSL`, mantendo o funcionamento local compatível com o PostgreSQL do Docker Compose.
 
-No AWS Academy Learner Lab existem restrições diferentes de uma conta AWS comum. As credenciais são temporárias e possuem Access Key, Secret Access Key e Session Token. Sempre que o laboratório é reiniciado, essas credenciais podem precisar ser atualizadas no arquivo ~/.aws/credentials. A região utilizada em toda a prova foi us-east-1.
+A conexão atual utiliza `rejectUnauthorized: false`. Isso mantém a conexão criptografada, mas não realiza validação completa da cadeia do certificado do servidor. Em um ambiente de produção seria adequado instalar a CA oficial do Amazon RDS e habilitar essa validação.
 
-Outra limitação importante é que o Learner Lab não permite criar livremente usuários, grupos e roles IAM. Por esse motivo não foi criado IAM próprio. A instância EC2 utiliza o LabInstanceProfile, que já existe no ambiente fornecido pelo Academy.
+No AWS Academy Learner Lab existem restrições diferentes de uma conta AWS comum. As credenciais são temporárias e possuem Access Key, Secret Access Key e Session Token. Sempre que o laboratório é reiniciado, essas credenciais podem precisar ser atualizadas. A região utilizada em toda a prova foi `us-east-1`.
 
-Também foi encontrada uma restrição específica relacionada ao S3. A Service Control Policy do laboratório bloqueou uma leitura relacionada ao Object Lock quando o Terraform tentou gerenciar o bucket diretamente. Para manter o Remote State funcionando, o processo foi adaptado e o bucket S3 passou a ser criado e configurado através da AWS CLI. O bucket utiliza versionamento, criptografia e bloqueio de acesso público. O DynamoDB continua sendo utilizado como mecanismo de locking conforme estudado nas aulas e exigido pelo enunciado.
+Outra limitação importante é que o Learner Lab não permite criar livremente usuários, grupos e roles IAM. Por esse motivo não foi criado IAM próprio. A instância EC2 utiliza o `LabInstanceProfile`, que já existe no ambiente fornecido pelo Academy.
 
-Essa experiência mostrou que uma configuração válida em uma conta AWS comum pode precisar de adaptações dentro do Learner Lab, tornando a leitura das mensagens de erro e a validação prática essenciais.
+Também foi encontrada uma restrição específica relacionada ao S3. A Service Control Policy do laboratório bloqueou uma leitura relacionada ao Object Lock quando o Terraform tentou gerenciar o bucket diretamente. Para manter o Remote State funcionando, o processo foi adaptado e o bucket S3 passou a ser criado e configurado através da AWS CLI.
+
+O bucket utiliza versionamento, criptografia AES256 e bloqueio de acesso público. O DynamoDB é utilizado como mecanismo de locking conforme estudado nas aulas e exigido pelo enunciado.
 
 O Terraform State da infraestrutura principal foi armazenado remotamente no S3, enquanto uma tabela DynamoDB foi utilizada para controlar o locking e reduzir o risco de alterações concorrentes no estado.
 
-Antes da finalização, também foram verificados diretamente no bucket o versionamento, a criptografia AES256, o bloqueio de acesso público e as tags utilizadas para identificar o recurso.
+Na validação final foram verificados diretamente o versionamento, a criptografia AES256, o Public Access Block, as tags, o objeto `prova/terraform.tfstate` e a tabela DynamoDB em estado `ACTIVE`.
+
+Depois da coleta das evidências, todas as versões e Delete Markers existentes no bucket foram removidos para permitir a exclusão definitiva do backend remoto.
+
+Essa experiência mostrou que uma configuração válida em uma conta AWS comum pode precisar de adaptações dentro do Learner Lab, tornando a leitura das mensagens de erro e a validação prática essenciais.
 
 ---
 
 # Questão 4 — Validação e Responsabilidade
 
-Antes de executar qualquer terraform apply, foi utilizado um checklist de validação. Primeiro foi executado terraform fmt -recursive para garantir a formatação dos arquivos. Depois foi executado terraform validate para confirmar que as referências, módulos, variáveis e sintaxe estavam corretos. Somente após essa etapa foi executado terraform plan.
+Antes de executar qualquer `terraform apply`, foi utilizado um checklist de validação. Primeiro foi executado `terraform fmt -recursive` para garantir a formatação dos arquivos. Depois foi executado `terraform validate` para confirmar que as referências, módulos, variáveis e sintaxe estavam corretos. Somente após essa etapa foi executado `terraform plan`.
 
-Durante o terraform plan, foram verificados os tipos e quantidades de recursos que seriam criados. Também foram revisados itens de segurança, principalmente o posicionamento do RDS, o atributo publicly_accessible = false, criptografia do armazenamento e a regra de Security Group limitando a porta 5432 à EC2.
+Durante o `terraform plan`, foram verificados os tipos e quantidades de recursos que seriam criados. Também foram revisados itens de segurança, principalmente o posicionamento do RDS, o atributo `publicly_accessible = false`, criptografia do armazenamento e a regra de Security Group limitando a porta 5432 à EC2.
 
-Depois do terraform apply, a validação continuou. O estado da EC2 foi verificado pela AWS CLI e os status checks do sistema e da instância ficaram como ok. A instância também foi verificada através do AWS Systems Manager.
+Depois do `terraform apply`, a validação continuou. O estado da EC2 foi verificado e a instância também foi acessada através do AWS Systems Manager.
 
-Os containers foram analisados utilizando docker ps -a e docker logs. Foi justamente através dessa validação que foi detectado o problema de SSL entre a aplicação e o RDS. O container existia, mas estava reiniciando. Sem analisar os logs, seria possível interpretar incorretamente que apenas a rede ou a EC2 estavam com problema.
+Os containers foram analisados utilizando comandos do Docker e logs. Foi justamente através dessa validação que foi detectado o problema de SSL entre a aplicação e o RDS. O container existia, mas estava reiniciando. Sem analisar os logs, seria possível interpretar incorretamente que apenas a rede ou a EC2 estavam com problema.
 
-Após a correção, o endpoint /health retornou status ok e database connected. Em seguida foram executadas operações reais de Create, Read, Update e Delete na API hospedada na EC2. A reserva criada foi armazenada no RDS, recuperada, atualizada, removida e posteriormente retornou HTTP 404, confirmando o funcionamento completo.
+Após a correção, o endpoint `/health` retornou HTTP 200 com `status: ok` e `database: connected`. Em seguida foram executadas operações reais de Create, Read, Update e Delete na API hospedada na EC2.
+
+Durante a validação final foi criada uma reserva, realizada a leitura da lista e do ID específico, executado um UPDATE e confirmados os novos dados.
+
+Depois disso, somente o container da API foi reiniciado através do AWS Systems Manager. Após o restart, a mesma reserva continuou disponível no RDS, confirmando que os dados não estavam armazenados na memória nem dentro do container da aplicação.
+
+A reserva foi então removida através de DELETE e uma nova busca pelo mesmo ID retornou HTTP 404, confirmando o comportamento esperado.
+
+Após o deploy foi executado novamente `terraform plan` com os mesmos parâmetros. O resultado foi `No changes. Your infrastructure matches the configuration.`, demonstrando que o código versionado correspondia à infraestrutura realmente implantada.
+
+A validação de reprodutibilidade também foi realizada a partir de um clone novo do GitHub. Nesse ambiente foram confirmadas as permissões executáveis dos scripts, o Docker Compose, o CRUD completo e a persistência após reiniciar a API.
 
 Se o código gerado pela IA tivesse sido aceito sem revisão, a infraestrutura poderia aparentar sucesso porque o Terraform criou os recursos corretamente, enquanto a aplicação continuaria indisponível devido à falha na conexão PostgreSQL. Da mesma forma, a tentativa inicial de gerenciamento do bucket S3 não funcionaria corretamente dentro das restrições do Learner Lab.
 
-A evolução Git → Docker → Docker Compose → Terraform → Modules ajudou a desenvolver um processo de validação em camadas. Git permitiu registrar mudanças e correções; Docker tornou o ambiente reproduzível; Compose permitiu validar a integração local; Terraform permitiu revisar a infraestrutura antes da criação; e os módulos reduziram dependências implícitas, tornando os relacionamentos entre recursos mais visíveis.
+A evolução Git → Docker → Docker Compose → Terraform → Modules ajudou a desenvolver um processo de validação em camadas. Git permitiu registrar mudanças e correções; Docker tornou o ambiente reproduzível; Compose permitiu validar a integração local; Terraform permitiu revisar a infraestrutura antes da criação; e os módulos reduziram dependências implícitas.
 
 Por isso, a IA foi utilizada como ferramenta de apoio e não como fonte final de verdade. Cada sugestão relevante foi confirmada através de comandos, logs, testes HTTP, Terraform Plan e observação direta dos recursos AWS antes de considerar a etapa concluída.
 
-Também foi testado o comportamento esperado após a exclusão de uma reserva, realizando uma nova busca pelo mesmo ID e confirmando o retorno HTTP 404 da API.
+Antes da destruição foram verificadas as configurações do S3, do Remote State e do DynamoDB. Depois, o script de destroy removeu os 14 recursos da infraestrutura principal, confirmou o state vazio, destruiu a tabela DynamoDB, apagou todas as versões do S3 e removeu o bucket.
 
-Além dos testes funcionais, o histórico Git e os arquivos de evidência foram revisados antes da destruição da infraestrutura para garantir que os resultados importantes permanecessem documentados.
+A verificação final confirmou que não restaram EC2, RDS, VPC, DynamoDB ou bucket S3 do projeto ativos no Learner Lab.
+
+Com isso, a responsabilidade pela entrega não ficou delegada à IA. O resultado final foi aceito somente depois que cada parte relevante foi confrontada com o comportamento real do ambiente.

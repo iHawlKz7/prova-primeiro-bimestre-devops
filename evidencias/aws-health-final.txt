@@ -1,4 +1,0 @@
-=== VALIDACAO FINAL AWS ===
-Sun Sep 27 17:48:12 -03 2026
-
-{"status":"ok","database":"connected"}

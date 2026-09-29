@@ -1,4 +1,0 @@
-Infraestrutura principal: 14 recursos destruídos
-DynamoDB backend: destruído
-Bucket S3 backend: destruído
-Terraform state principal: vazio

@@ -1,0 +1,113 @@
+===== API URL =====
+http://32.198.23.106:3000
+
+===== HEALTH =====
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 38
+ETag: W/"26-G5LxOYyjFUYa+WPP6EvZ1P788Mo"
+Date: Tue, 29 Sep 2026 00:34:17 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"status":"ok","database":"connected"}
+
+===== POST /reservas =====
+{"id":1,"cliente":"Validacao AWS Final","data":"2026-10-01T00:00:00.000Z","status":"pendente"}
+
+ID CRIADO: 1
+
+===== GET /reservas =====
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 96
+ETag: W/"60-yZ0i0eRRyhBgeNdVOCRcsiQp61Y"
+Date: Tue, 29 Sep 2026 00:34:18 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+[{"id":1,"cliente":"Validacao AWS Final","data":"2026-10-01T00:00:00.000Z","status":"pendente"}]
+
+===== GET /reservas/1 =====
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 94
+ETag: W/"5e-ZM8mk35RvaF9oFmd5NkfIBw5g50"
+Date: Tue, 29 Sep 2026 00:34:18 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Validacao AWS Final","data":"2026-10-01T00:00:00.000Z","status":"pendente"}
+
+===== PUT /reservas/1 =====
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 101
+ETag: W/"65-KmFQTffWf3FQHDdPn96FbyCQZsA"
+Date: Tue, 29 Sep 2026 00:34:18 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Validacao AWS Atualizada","data":"2026-10-02T00:00:00.000Z","status":"confirmada"}
+
+===== GET APOS UPDATE =====
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 101
+ETag: W/"65-KmFQTffWf3FQHDdPn96FbyCQZsA"
+Date: Tue, 29 Sep 2026 00:34:18 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Validacao AWS Atualizada","data":"2026-10-02T00:00:00.000Z","status":"confirmada"}
+
+===== IDENTIFICANDO EC2 =====
+INSTANCE_ID=i-0928485f7a90cf9e6
+
+===== AGUARDANDO EC2 FICAR DISPONIVEL NO SSM =====
+Tentativa 1/30: Online
+
+===== REINICIANDO SOMENTE A API =====
+COMMAND_ID=9cbf2e65-c045-47b9-b8de-945b022510ba
+
+===== RESULTADO DO RESTART =====
+{
+    "Status": "Success",
+    "StandardOutput": "reservas-api\n",
+    "StandardError": ""
+}
+
+===== AGUARDANDO HEALTH APOS RESTART =====
+API voltou saudavel na tentativa 1.
+
+===== PERSISTENCIA APOS RESTART =====
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 101
+ETag: W/"65-KmFQTffWf3FQHDdPn96FbyCQZsA"
+Date: Tue, 29 Sep 2026 00:34:36 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"cliente":"Validacao AWS Atualizada","data":"2026-10-02T00:00:00.000Z","status":"confirmada"}
+
+===== DELETE /reservas/1 =====
+HTTP/1.1 204 No Content
+X-Powered-By: Express
+Date: Tue, 29 Sep 2026 00:34:36 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+
+===== GET APOS DELETE - DEVE SER 404 =====
+HTTP_STATUS=404
+{"erro":"Reserva não encontrada"}
+
+CRUD AWS + RESTART + PERSISTENCIA: OK

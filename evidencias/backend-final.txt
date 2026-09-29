@@ -1,0 +1,82 @@
+===== S3 VERSIONING =====
+{
+    "Status": "Enabled"
+}
+
+===== S3 ENCRYPTION =====
+{
+    "ServerSideEncryptionConfiguration": {
+        "Rules": [
+            {
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256"
+                },
+                "BucketKeyEnabled": false,
+                "BlockedEncryptionTypes": {
+                    "EncryptionType": [
+                        "SSE-C"
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+===== S3 PUBLIC ACCESS BLOCK =====
+{
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    }
+}
+
+===== S3 TAGS =====
+{
+    "TagSet": [
+        {
+            "Key": "Project",
+            "Value": "prova-devops"
+        },
+        {
+            "Key": "Student",
+            "Value": "Emar-Cristian"
+        },
+        {
+            "Key": "Name",
+            "Value": "terraform-state"
+        },
+        {
+            "Key": "RA",
+            "Value": "6325192"
+        }
+    ]
+}
+
+===== REMOTE STATE =====
+{
+    "AcceptRanges": "bytes",
+    "LastModified": "2026-09-29T00:31:20+00:00",
+    "ContentLength": 35239,
+    "ETag": "\"a6905b5014d23c4d997117d8b845e28a\"",
+    "VersionId": "yZnaI1uC_2z_LUVb8eWnyzSX1dHIAWvU",
+    "ContentType": "application/json",
+    "ServerSideEncryption": "AES256",
+    "Metadata": {}
+}
+
+===== DYNAMODB =====
+{
+    "TableName": "technova-devops-locks-6325192",
+    "TableStatus": "ACTIVE",
+    "KeySchema": [
+        {
+            "AttributeName": "LockID",
+            "KeyType": "HASH"
+        }
+    ],
+    "BillingMode": "PAY_PER_REQUEST"
+}
+
+BACKEND REMOTO: OK

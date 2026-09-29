@@ -1,54 +1,27 @@
 
 Warning: Deprecated Parameter
 
-The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+instead.
 Acquiring state lock. This may take a few moments...
 module.ec2.data.aws_ami.amazon_linux: Reading...
-module.vpc.aws_vpc.main: Refreshing state... [id=vpc-0f956afc01953f73a]
-module.ec2.data.aws_ami.amazon_linux: Read complete after 2s [id=ami-0b2c9d1f3edcfd709]
-module.vpc.aws_internet_gateway.main: Refreshing state... [id=igw-059f9baca31ec2ff4]
-module.security_group.aws_security_group.ec2: Refreshing state... [id=sg-0d3185c13895179e1]
-module.vpc.aws_subnet.public[1]: Refreshing state... [id=subnet-016dbcaae71d6899c]
-module.vpc.aws_subnet.private[1]: Refreshing state... [id=subnet-0670fdabb3a1de718]
-module.vpc.aws_subnet.private[0]: Refreshing state... [id=subnet-04479903239054a88]
-module.vpc.aws_subnet.public[0]: Refreshing state... [id=subnet-07b158c09675661b5]
-module.security_group.aws_security_group.rds: Refreshing state... [id=sg-0c8c161f4d2665e7d]
-module.vpc.aws_route_table.public: Refreshing state... [id=rtb-0f31489225dfbec05]
+module.vpc.aws_vpc.main: Refreshing state... [id=vpc-0aba9482b019d97c3]
+module.ec2.data.aws_ami.amazon_linux: Read complete after 1s [id=ami-0b2c9d1f3edcfd709]
+module.security_group.aws_security_group.ec2: Refreshing state... [id=sg-0140ebee74c88230d]
+module.vpc.aws_internet_gateway.main: Refreshing state... [id=igw-0ca7bba38934050b9]
+module.vpc.aws_subnet.public[1]: Refreshing state... [id=subnet-0068db486430c523d]
+module.vpc.aws_subnet.private[1]: Refreshing state... [id=subnet-0c47a4dadb8b1e366]
+module.vpc.aws_subnet.public[0]: Refreshing state... [id=subnet-0f82bb31b451a1e92]
+module.vpc.aws_subnet.private[0]: Refreshing state... [id=subnet-081391a81e3c1a80e]
+module.security_group.aws_security_group.rds: Refreshing state... [id=sg-01e2a95356512e8aa]
+module.vpc.aws_route_table.public: Refreshing state... [id=rtb-0501cf66ba48c777b]
 module.rds.aws_db_subnet_group.main: Refreshing state... [id=technova-reservas-db-subnet-group]
-module.vpc.aws_route_table_association.public[1]: Refreshing state... [id=rtbassoc-0aaf4621242724278]
-module.vpc.aws_route_table_association.public[0]: Refreshing state... [id=rtbassoc-06cff1553b752fde9]
-module.rds.aws_db_instance.postgres: Refreshing state... [id=db-4Y3UAOHDOFIA6Q2JMYRP3SDQMQ]
-module.ec2.aws_instance.api: Refreshing state... [id=i-08535acaa5c6fef5e]
+module.vpc.aws_route_table_association.public[1]: Refreshing state... [id=rtbassoc-0ee1c9a27dd7c231d]
+module.vpc.aws_route_table_association.public[0]: Refreshing state... [id=rtbassoc-0c1f2d74009d6c866]
+module.rds.aws_db_instance.postgres: Refreshing state... [id=db-HXEHDTGFCY5TYGMEONITA7ZGYA]
+module.ec2.aws_instance.api: Refreshing state... [id=i-0928485f7a90cf9e6]
 
-Terraform used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
-  ~ update in-place
+No changes. Your infrastructure matches the configuration.
 
-Terraform will perform the following actions:
-
-  # module.ec2.aws_instance.api will be updated in-place
-  ~ resource "aws_instance" "api" {
-        id                                   = "i-08535acaa5c6fef5e"
-      ~ public_dns                           = "ec2-54-242-193-229.compute-1.amazonaws.com" -> (known after apply)
-      ~ public_ip                            = "54.242.193.229" -> (known after apply)
-        tags                                 = {
-            "Name"    = "technova-reservas-api"
-            "Project" = "technova-reservas"
-            "RA"      = "6325192"
-        }
-      ~ user_data                            = (sensitive value)
-        # (37 unchanged attributes hidden)
-
-        # (8 unchanged blocks hidden)
-    }
-
-Plan: 0 to add, 1 to change, 0 to destroy.
-
-Changes to Outputs:
-  ~ api_url       = "http://54.242.193.229:3000" -> (known after apply)
-  ~ ec2_public_ip = "54.242.193.229" -> (known after apply)
-
-─────────────────────────────────────────────────────────────────────────────
-
-Note: You didn't use the -out option to save this plan, so Terraform can't
-guarantee to take exactly these actions if you run "terraform apply" now.
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.

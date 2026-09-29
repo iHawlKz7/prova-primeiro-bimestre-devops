@@ -1,5 +1,0 @@
-=== HEALTH AWS ===
-{"status":"ok","database":"connected"}
-
-=== RESERVAS AWS ===
-[]
